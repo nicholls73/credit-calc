@@ -1,11 +1,8 @@
 package csv
 
-import (
-	"credit-calc/src/models"
-	"os"
-)
+import "os"
 
-func ReadCSVFile(filePath string) ([]models.Transaction, error) {
+func ReadCSVFile(filePath string) ([]string, error) {
 	return nil, nil
 }
 
