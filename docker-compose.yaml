@@ -1,0 +1,16 @@
+services:
+  test:
+    container_name: test
+    build:
+      context: .
+      dockerfile: dockerfile
+      target: development
+    entrypoint: gotestsum --format testdox
+
+  lint:
+    container_name: lint
+    image: golangci/golangci-lint:v1.61.0-alpine
+    entrypoint: golangci-lint run -v --exclude-dirs='(go/pkg)' --timeout=10m
+    working_dir: /lint
+    volumes:
+      - ./src:/lint

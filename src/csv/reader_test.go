@@ -10,7 +10,7 @@ import (
 
 func createTestFile(t *testing.T, content []byte) string {
 	t.Helper()
-	
+
 	testFile, err := os.CreateTemp("", "test-*.csv")
 	if err != nil {
 		t.Fatal(err)
@@ -93,7 +93,7 @@ func TestReadCSVRow_InvalidRow(t *testing.T) {
 	filename := createTestFile(t, content)
 
 	file := openFile(t, filename)
-	
+
 	row, err := ReadCSVRow(file, 0)
 	assert.ErrorIs(t, err, errors.ErrInvalidRow)
 	assert.Nil(t, row)
@@ -103,15 +103,15 @@ func TestReadCSVRow_InvalidAmount(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		name string
+		name    string
 		content []byte
 	}{
 		{
-			name: "invalid amount",
+			name:    "invalid amount",
 			content: []byte("20/03/2025,INVALID,VENDOR"),
 		},
 		{
-			name: "invalid amount format",
+			name:    "invalid amount format",
 			content: []byte("20/03/2025,5.00.00,VENDOR"),
 		},
 	}
@@ -132,19 +132,19 @@ func TestReadCSVRow_InvalidDate(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		name string
+		name    string
 		content []byte
 	}{
 		{
-			name: "invalid date",
+			name:    "invalid date",
 			content: []byte("INVALID,500.00,VENDOR"),
 		},
 		{
-			name: "invalid date format",
+			name:    "invalid date format",
 			content: []byte("2025/03/02,500.00,VENDOR"),
 		},
 		{
-			name: "incomplete date",
+			name:    "incomplete date",
 			content: []byte("02/03,500.00,VENDOR"),
 		},
 	}
