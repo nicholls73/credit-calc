@@ -1,0 +1,29 @@
+name: "pr"
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    name: "lint"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - run: ./scripts/lint.sh
+
+  test:
+    name: "test"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - run: ./scripts/test.sh
+
+  build:
+    name: "build"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - run: ./scripts/build.sh
