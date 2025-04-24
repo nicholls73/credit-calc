@@ -1,7 +1,7 @@
 package csv
 
 import (
-	"credit-calc/src/errors"
+	"credit-calc/errors"
 	"os"
 	"testing"
 
