@@ -1,12 +1,35 @@
-package csv
+package csv_test
 
 import (
-	"credit-calc/errors"
+	"credit-calc/csv"
 	"os"
 	"testing"
+	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+const testFileContent = `20/03/2025,500.00,VENDOR ONE
+21/03/2025,1000.00,VENDOR TWO
+24/03/2025,-100.00,VENDOR THREE`
+
+var testTransactions = []*csv.Transaction{
+	{
+		Date:   time.Date(2025, 3, 20, 0, 0, 0, 0, time.UTC),
+		Amount: 500.00,
+		Vendor: "VENDOR ONE",
+	},
+	{
+		Date:   time.Date(2025, 3, 21, 0, 0, 0, 0, time.UTC),
+		Amount: 1000.00,
+		Vendor: "VENDOR TWO",
+	},
+	{
+		Date:   time.Date(2025, 3, 24, 0, 0, 0, 0, time.UTC),
+		Amount: -100.00,
+		Vendor: "VENDOR THREE",
+	},
+}
 
 func createTestFile(t *testing.T, content []byte) string {
 	t.Helper()
@@ -30,167 +53,72 @@ func createTestFile(t *testing.T, content []byte) string {
 	return filename
 }
 
-func openFile(t *testing.T, filename string) *os.File {
-	t.Helper()
-
-	file, err := os.Open(filename)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	t.Cleanup(func() {
-		file.Close()
-	})
-
-	return file
-}
-
-func TestOpenCSVFile_FileExists(t *testing.T) {
+func TestCreateCSVReader_ValidFile(t *testing.T) {
 	t.Parallel()
 
-	content := []byte("one, two, three")
-	filename := createTestFile(t, content)
+	filename := createTestFile(t, []byte(testFileContent))
 
-	file, err := OpenCSVFile(filename)
-	assert.NoError(t, err)
-	assert.NotNil(t, file)
+	reader, closeFile, err := csv.CreateCSVReader(filename)
+	t.Cleanup(closeFile)
+
+	require.NoError(t, err)
+	require.NotNil(t, reader)
+	require.NotNil(t, closeFile)
 }
 
-func TestOpenCSVFile_FileDoesNotExist(t *testing.T) {
+func TestCreateCSVReader_InvalidFile(t *testing.T) {
 	t.Parallel()
 
-	filename := "non-existent-file.csv"
+	filename := "invalid-file.csv"
 
-	file, err := OpenCSVFile(filename)
-	assert.ErrorIs(t, err, errors.ErrFileNotFound)
-	assert.NotNil(t, file)
+	reader, closeFile, err := csv.CreateCSVReader(filename)
+
+	require.ErrorContains(t, err, csv.ErrFailedToOpenFileMsg)
+	require.Nil(t, reader)
+	require.Nil(t, closeFile)
 }
 
-func TestReadCSVRow_ValidRows(t *testing.T) {
+func TestReadRow_ValidRows(t *testing.T) {
 	t.Parallel()
 
-	content := []byte(`20/03/2025,500.00,VENDOR ONE
-										21/03/2025,1000.00,VENDOR TWO
-										21/03/2025,-100.00,VENDOR THREE`)
+	filename := createTestFile(t, []byte(testFileContent))
 
-	filename := createTestFile(t, content)
+	reader, closeFile, _ := csv.CreateCSVReader(filename)
+	t.Cleanup(closeFile)
 
-	file, err := os.Open(filename)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	row, err := ReadCSVRow(file, 0)
-	assert.NoError(t, err)
-	assert.Equal(t, []string{"20/03/2025", "500.00", "VENDOR"}, row)
-}
-
-func TestReadCSVRow_InvalidRow(t *testing.T) {
-	t.Parallel()
-
-	content := []byte("20/03/2025,500.00")
-
-	filename := createTestFile(t, content)
-
-	file := openFile(t, filename)
-
-	row, err := ReadCSVRow(file, 0)
-	assert.ErrorIs(t, err, errors.ErrInvalidRow)
-	assert.Nil(t, row)
-}
-
-func TestReadCSVRow_InvalidAmount(t *testing.T) {
-	t.Parallel()
-
-	testCases := []struct {
-		name    string
-		content []byte
-	}{
-		{
-			name:    "invalid amount",
-			content: []byte("20/03/2025,INVALID,VENDOR"),
-		},
-		{
-			name:    "invalid amount format",
-			content: []byte("20/03/2025,5.00.00,VENDOR"),
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			filename := createTestFile(t, tc.content)
-			file := openFile(t, filename)
-
-			row, err := ReadCSVRow(file, 0)
-			assert.ErrorIs(t, err, errors.ErrInvalidAmount)
-			assert.Nil(t, row)
-		})
+	for _, expected := range testTransactions {
+		transaction, err := reader.ReadRow()
+		require.NoError(t, err)
+		require.Equal(t, expected.Date, transaction.Date)
+		require.Equal(t, expected.Amount, transaction.Amount)
+		require.Equal(t, expected.Vendor, transaction.Vendor)
 	}
 }
 
-func TestReadCSVRow_InvalidDate(t *testing.T) {
+func TestReadRow_InvalidDateParsing(t *testing.T) {
 	t.Parallel()
 
-	testCases := []struct {
-		name    string
-		content []byte
-	}{
-		{
-			name:    "invalid date",
-			content: []byte("INVALID,500.00,VENDOR"),
-		},
-		{
-			name:    "invalid date format",
-			content: []byte("2025/03/02,500.00,VENDOR"),
-		},
-		{
-			name:    "incomplete date",
-			content: []byte("02/03,500.00,VENDOR"),
-		},
-	}
+	filename := createTestFile(t, []byte("dog,500.00,VENDOR ONE"))
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			filename := createTestFile(t, tc.content)
-			file := openFile(t, filename)
+	reader, closeFile, _ := csv.CreateCSVReader(filename)
+	t.Cleanup(closeFile)
 
-			row, err := ReadCSVRow(file, 0)
-			assert.ErrorIs(t, err, errors.ErrInvalidDate)
-			assert.Nil(t, row)
-		})
-	}
+	transaction, err := reader.ReadRow()
+
+	require.ErrorContains(t, err, csv.ErrFailedToParseDateMsg)
+	require.Nil(t, transaction)
 }
 
-func TestReadCSVFile_ValidFile(t *testing.T) {
+func TestReadRow_InvalidAmountParsing(t *testing.T) {
 	t.Parallel()
 
-	expected := []byte(`20/03/2025,500.00,VENDER ONE
-										21/03/2025,1000.00,VENDOR TWO
-										21/03/2025,-100.00,VENDOR THREE`)
+	filename := createTestFile(t, []byte("20/03/2025,dog,VENDOR ONE"))
 
-	filename := createTestFile(t, expected)
+	reader, closeFile, _ := csv.CreateCSVReader(filename)
+	t.Cleanup(closeFile)
 
-	content, err := ReadCSVFile(filename)
-	assert.NoError(t, err)
-	assert.Equal(t, expected, content)
-}
+	transaction, err := reader.ReadRow()
 
-func TestReadCSVFile_MissingFile(t *testing.T) {
-	t.Parallel()
-
-	filename := "non-existent-file.csv"
-
-	content, err := ReadCSVFile(filename)
-	assert.ErrorIs(t, err, errors.ErrFileNotFound)
-	assert.Nil(t, content)
-}
-
-func TestReadCSVFile_EmptyFile(t *testing.T) {
-	t.Parallel()
-
-	filename := createTestFile(t, []byte{})
-
-	content, err := ReadCSVFile(filename)
-	assert.ErrorIs(t, err, errors.ErrFileEmpty)
-	assert.Nil(t, content)
+	require.ErrorContains(t, err, csv.ErrFailedToParseAmountMsg)
+	require.Nil(t, transaction)
 }
