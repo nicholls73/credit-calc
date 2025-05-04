@@ -2,6 +2,7 @@ package main
 
 import (
 	"credit-calc/csv"
+	"credit-calc/transactions"
 	"io"
 
 	"github.com/rs/zerolog/log"
@@ -14,14 +15,20 @@ func main() {
 	}
 	defer closeFile()
 
-	transactions := make([]*csv.Transaction, 0)
+	transactionsList := make([]*transactions.Transaction, 0)
 
 	for row, err := reader.ReadRow(); err != io.EOF; row, err = reader.ReadRow() {
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to read row")
 		}
 
-		transactions = append(transactions, row)
-		log.Info().Msgf("transaction: %+v", row)
+		transaction, err := transactions.FromCSVRow(row)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to parse transaction")
+		}
+
+		transactionsList = append(transactionsList, transaction)
 	}
+
+	log.Info().Msgf("parsed %d transactions", len(transactionsList))
 }

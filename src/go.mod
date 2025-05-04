@@ -3,6 +3,7 @@ module credit-calc
 go 1.23.4
 
 require (
+	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/rs/zerolog v1.34.0
 	github.com/stretchr/testify v1.10.0
 )
