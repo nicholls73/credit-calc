@@ -4,7 +4,6 @@ import (
 	"credit-calc/csv"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -13,22 +12,10 @@ const testFileContent = `20/03/2025,500.00,VENDOR ONE
 21/03/2025,1000.00,VENDOR TWO
 24/03/2025,-100.00,VENDOR THREE`
 
-var testTransactions = []*csv.Transaction{
-	{
-		Date:   time.Date(2025, 3, 20, 0, 0, 0, 0, time.UTC),
-		Amount: 500.00,
-		Vendor: "VENDOR ONE",
-	},
-	{
-		Date:   time.Date(2025, 3, 21, 0, 0, 0, 0, time.UTC),
-		Amount: 1000.00,
-		Vendor: "VENDOR TWO",
-	},
-	{
-		Date:   time.Date(2025, 3, 24, 0, 0, 0, 0, time.UTC),
-		Amount: -100.00,
-		Vendor: "VENDOR THREE",
-	},
+var expectedRows = [][]string{
+	{"20/03/2025", "500.00", "VENDOR ONE"},
+	{"21/03/2025", "1000.00", "VENDOR TWO"},
+	{"24/03/2025", "-100.00", "VENDOR THREE"},
 }
 
 func createTestFile(t *testing.T, content []byte) string {
@@ -86,39 +73,9 @@ func TestReadRow_ValidRows(t *testing.T) {
 	reader, closeFile, _ := csv.CreateCSVReader(filename)
 	t.Cleanup(closeFile)
 
-	for _, expected := range testTransactions {
-		transaction, err := reader.ReadRow()
+	for _, expected := range expectedRows {
+		row, err := reader.ReadRow()
 		require.NoError(t, err)
-		require.Equal(t, expected.Date, transaction.Date)
-		require.Equal(t, expected.Amount, transaction.Amount)
-		require.Equal(t, expected.Vendor, transaction.Vendor)
+		require.Equal(t, expected, row)
 	}
-}
-
-func TestReadRow_InvalidDateParsing(t *testing.T) {
-	t.Parallel()
-
-	filename := createTestFile(t, []byte("dog,500.00,VENDOR ONE"))
-
-	reader, closeFile, _ := csv.CreateCSVReader(filename)
-	t.Cleanup(closeFile)
-
-	transaction, err := reader.ReadRow()
-
-	require.ErrorContains(t, err, csv.ErrFailedToParseDateMsg)
-	require.Nil(t, transaction)
-}
-
-func TestReadRow_InvalidAmountParsing(t *testing.T) {
-	t.Parallel()
-
-	filename := createTestFile(t, []byte("20/03/2025,dog,VENDOR ONE"))
-
-	reader, closeFile, _ := csv.CreateCSVReader(filename)
-	t.Cleanup(closeFile)
-
-	transaction, err := reader.ReadRow()
-
-	require.ErrorContains(t, err, csv.ErrFailedToParseAmountMsg)
-	require.Nil(t, transaction)
 }
