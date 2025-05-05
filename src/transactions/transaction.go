@@ -1,8 +1,10 @@
 package transactions
 
 import (
+	"credit-calc/configuration"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	v "github.com/go-ozzo/ozzo-validation/v4"
@@ -53,4 +55,14 @@ func FromCSVRow(row []string) (*Transaction, error) {
 	}
 
 	return &transaction, nil
+}
+
+func (t Transaction) IsEligible(config *configuration.Config) bool {
+	for _, pattern := range config.IneligiblePatterns {
+		if strings.Contains(strings.ToUpper(t.Vendor), pattern) {
+			return false
+		}
+	}
+
+	return true
 }

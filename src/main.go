@@ -1,6 +1,7 @@
 package main
 
 import (
+	"credit-calc/configuration"
 	"credit-calc/csv"
 	"credit-calc/transactions"
 	"io"
@@ -9,6 +10,11 @@ import (
 )
 
 func main() {
+	config, err := configuration.LoadConfig("../config.yaml")
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to load config")
+	}
+
 	reader, closeFile, err := csv.CreateCSVReader("../ANZ.csv")
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to open csv file")
@@ -27,8 +33,7 @@ func main() {
 			log.Fatal().Err(err).Msg("failed to parse transaction")
 		}
 
+		log.Info().Msgf("%s is eligible: %t", transaction.Vendor, transaction.IsEligible(config))
 		transactionsList = append(transactionsList, transaction)
 	}
-
-	log.Info().Msgf("parsed %d transactions", len(transactionsList))
 }
