@@ -1,0 +1,22 @@
+ineligible_patterns:
+  - PAYMENT
+  - TRANSFER
+  - BPAY
+  - POST BILLPAY
+  - SMART(RIDER|CARD)
+  - PTA
+  - CPP
+  - ATO
+  - TAXATION OFFICE
+  - INSURANCE
+  - CASH ADV
+  - FX
+  - FOREX
+  - CASINO
+  - GAMBLING
+  - LOTTERY
+  - TAB
+  - AU POST
+  - POST OFFICE
+  - REWARD PROGRAM FEE
+  - ANNUAL FEE
