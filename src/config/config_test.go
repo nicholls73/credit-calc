@@ -1,7 +1,7 @@
-package configuration_test
+package config_test
 
 import (
-	"credit-calc/configuration"
+	c "credit-calc/config"
 	"os"
 	"testing"
 
@@ -40,11 +40,11 @@ func createTestFile(t *testing.T, content []byte) string {
 func TestLoadConfig_Equals(t *testing.T) {
 	t.Parallel()
 
-	equalConfig := &configuration.Config{
+	equalConfig := &c.Config{
 		IneligiblePatterns: []string{"TEST_PATTERN_1", "TEST_PATTERN_2", "TEST_PATTERN_3"},
 	}
 
-	inequalConfig := &configuration.Config{
+	inequalConfig := &c.Config{
 		IneligiblePatterns: []string{"TEST_PATTERN_4", "TEST_PATTERN_5", "TEST_PATTERN_6"},
 	}
 
@@ -57,11 +57,11 @@ func TestLoadConfig_ValidConfig(t *testing.T) {
 
 	filePath := createTestFile(t, []byte(testFileContent))
 
-	expectedConfig := &configuration.Config{
+	expectedConfig := &c.Config{
 		IneligiblePatterns: []string{"TEST_PATTERN_1", "TEST_PATTERN_2", "TEST_PATTERN_3"},
 	}
 
-	config, err := configuration.LoadConfig(filePath)
+	config, err := c.LoadConfig(filePath)
 
 	require.NoError(t, err)
 	require.NotNil(t, config)
@@ -73,8 +73,8 @@ func TestLoadConfig_InvalidFile(t *testing.T) {
 
 	filename := "invalid-file.yaml"
 
-	config, err := configuration.LoadConfig(filename)
+	config, err := c.LoadConfig(filename)
 
-	require.ErrorContains(t, err, configuration.ErrFailedToReadFileMsg)
+	require.ErrorContains(t, err, c.ErrFailedToReadFileMsg)
 	require.Nil(t, config)
 }

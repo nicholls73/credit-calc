@@ -1,7 +1,7 @@
 package main
 
 import (
-	"credit-calc/configuration"
+	c "credit-calc/config"
 	"credit-calc/csv"
 	"credit-calc/transactions"
 	"io"
@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	config, err := configuration.LoadConfig("../config.yaml")
+	config, err := c.LoadConfig("../config.yaml")
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to load config")
 	}
@@ -36,4 +36,5 @@ func main() {
 		log.Info().Msgf("%s is eligible: %t", transaction.Vendor, transaction.IsEligible(config))
 		transactionsList = append(transactionsList, transaction)
 	}
+
 }
