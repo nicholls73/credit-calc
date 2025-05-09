@@ -1,7 +1,7 @@
 package transactions
 
 import (
-	"credit-calc/configuration"
+	c "credit-calc/config"
 	"fmt"
 	"strconv"
 	"strings"
@@ -57,7 +57,7 @@ func FromCSVRow(row []string) (*Transaction, error) {
 	return &transaction, nil
 }
 
-func (t Transaction) IsEligible(config *configuration.Config) bool {
+func (t Transaction) IsEligible(config *c.Config) bool {
 	for _, pattern := range config.IneligiblePatterns {
 		if strings.Contains(strings.ToUpper(t.Vendor), pattern) {
 			return false
