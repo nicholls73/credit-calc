@@ -4,6 +4,7 @@ import (
 	c "credit-calc/config"
 	"credit-calc/csv"
 	"credit-calc/transactions"
+	"fmt"
 	"io"
 
 	"github.com/rs/zerolog/log"
@@ -37,4 +38,5 @@ func main() {
 		transactionsList = append(transactionsList, transaction)
 	}
 
+	fmt.Println(transactionsList)
 }
