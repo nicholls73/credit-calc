@@ -6,12 +6,9 @@ linters:
     - depguard
     - dupl
     - exhaustruct
+    - gci
     - godot
     - mnd
     - inamedparam
     - revive
     - godox
-
-formatters:
-  enable:
-    - gofmt
