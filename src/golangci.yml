@@ -1,16 +1,17 @@
+version: 2
+
 linters:
   enable-all: true
   disable:
     - depguard
     - dupl
     - exhaustruct
-    - gci
-    - gofumpt
-    - gomnd
     - godot
     - mnd
     - inamedparam
     - revive
     - godox
-    - exportloopref
-    - execinquery
+
+formatters:
+  enable:
+    - gofmt
