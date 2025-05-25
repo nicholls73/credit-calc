@@ -20,3 +20,7 @@ ineligible_patterns:
   - POST OFFICE
   - REWARD PROGRAM FEE
   - ANNUAL FEE
+
+spend_amount_for_bonus: 5000
+bonus_spend_period_in_days: 90
+card_start_date: 2025-03-05
