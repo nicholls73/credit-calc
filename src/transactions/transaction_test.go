@@ -8,27 +8,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var validRow = []string{"20/03/2025", "500.00", "VENDOR ONE"}
+var validRow = []string{"20/03/2025", "500.00", "DESCRIPTION ONE"}
 
 var validTransaction = &transactions.Transaction{
-	Date:   time.Date(2025, 3, 20, 0, 0, 0, 0, time.Local),
-	Amount: 500.00,
-	Vendor: "VENDOR ONE",
+	Date:        time.Date(2025, 3, 20, 0, 0, 0, 0, time.Local),
+	Amount:      500.00,
+	Description: "DESCRIPTION ONE",
 }
 
 func TestTransaction_Equals(t *testing.T) {
 	t.Parallel()
 
 	equalTransaction := &transactions.Transaction{
-		Date:   time.Date(2025, 3, 20, 0, 0, 0, 0, time.Local),
-		Amount: 500.00,
-		Vendor: "VENDOR ONE",
+		Date:        time.Date(2025, 3, 20, 0, 0, 0, 0, time.Local),
+		Amount:      500.00,
+		Description: "DESCRIPTION ONE",
 	}
 
 	inequalTransaction := &transactions.Transaction{
-		Date:   time.Date(2025, 3, 21, 0, 0, 0, 0, time.Local),
-		Amount: 600.00,
-		Vendor: "VENDOR TWO",
+		Date:        time.Date(2025, 3, 21, 0, 0, 0, 0, time.Local),
+		Amount:      600.00,
+		Description: "DESCRIPTION TWO",
 	}
 
 	assert.True(t, validTransaction.Equals(equalTransaction))
@@ -57,7 +57,7 @@ func TestFromCSVRow_MissingInputs(t *testing.T) {
 func TestFromCSVRow_InvalidDate(t *testing.T) {
 	t.Parallel()
 
-	invalidRow := []string{"invalid-date", "500.00", "VENDOR ONE"}
+	invalidRow := []string{"invalid-date", "500.00", "DESCRIPTION ONE"}
 
 	transaction, err := transactions.FromCSVRow(invalidRow)
 	assert.Nil(t, transaction)
@@ -67,7 +67,7 @@ func TestFromCSVRow_InvalidDate(t *testing.T) {
 func TestFromCSVRow_InvalidAmount(t *testing.T) {
 	t.Parallel()
 
-	invalidRow := []string{"20/03/2025", "invalid-amount", "VENDOR ONE"}
+	invalidRow := []string{"20/03/2025", "invalid-amount", "DESCRIPTION ONE"}
 
 	transaction, err := transactions.FromCSVRow(invalidRow)
 	assert.Nil(t, transaction)
