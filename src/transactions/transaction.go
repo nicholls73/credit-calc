@@ -11,20 +11,20 @@ import (
 )
 
 type Transaction struct {
-	Date   time.Time
-	Amount float64
-	Vendor string
+	Date        time.Time
+	Amount      float64
+	Description string
 }
 
 func (t Transaction) Equals(other *Transaction) bool {
-	return t.Date == other.Date && t.Amount == other.Amount && t.Vendor == other.Vendor
+	return t.Date == other.Date && t.Amount == other.Amount && t.Description == other.Description
 }
 
 func (t Transaction) validate() error {
 	return v.ValidateStruct(&t,
 		v.Field(&t.Date, v.Required),
 		v.Field(&t.Amount, v.Required),
-		v.Field(&t.Vendor, v.Required),
+		v.Field(&t.Description, v.Required),
 	)
 }
 
@@ -45,9 +45,9 @@ func FromCSVRow(row []string) (*Transaction, error) {
 	}
 
 	transaction := Transaction{
-		Date:   date,
-		Amount: amount,
-		Vendor: row[2],
+		Date:        date,
+		Amount:      amount,
+		Description: row[2],
 	}
 
 	if err := transaction.validate(); err != nil {
@@ -59,7 +59,7 @@ func FromCSVRow(row []string) (*Transaction, error) {
 
 func (t Transaction) IsEligible(config *c.Config) bool {
 	for _, pattern := range config.IneligiblePatterns {
-		if strings.Contains(strings.ToUpper(t.Vendor), pattern) {
+		if strings.Contains(strings.ToUpper(t.Description), pattern) {
 			return false
 		}
 	}

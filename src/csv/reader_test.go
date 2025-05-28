@@ -8,14 +8,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const testFileContent = `20/03/2025,500.00,VENDOR ONE
-21/03/2025,1000.00,VENDOR TWO
-24/03/2025,-100.00,VENDOR THREE`
+const testFileContent = `20/03/2025,500.00,DESCRIPTION ONE
+21/03/2025,1000.00,DESCRIPTION TWO
+24/03/2025,-100.00,DESCRIPTION THREE`
 
 var expectedRows = [][]string{
-	{"20/03/2025", "500.00", "VENDOR ONE"},
-	{"21/03/2025", "1000.00", "VENDOR TWO"},
-	{"24/03/2025", "-100.00", "VENDOR THREE"},
+	{"20/03/2025", "500.00", "DESCRIPTION ONE"},
+	{"21/03/2025", "1000.00", "DESCRIPTION TWO"},
+	{"24/03/2025", "-100.00", "DESCRIPTION THREE"},
 }
 
 func createTestFile(t *testing.T, content []byte) string {

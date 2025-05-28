@@ -3,9 +3,10 @@ package main
 import (
 	c "credit-calc/config"
 	"credit-calc/csv"
+	"credit-calc/summary"
 	"credit-calc/transactions"
-	"fmt"
 	"io"
+	"time"
 
 	"github.com/rs/zerolog/log"
 )
@@ -34,9 +35,12 @@ func main() {
 			log.Fatal().Err(err).Msg("failed to parse transaction")
 		}
 
-		log.Info().Msgf("%s is eligible: %t", transaction.Vendor, transaction.IsEligible(config))
 		transactionsList = append(transactionsList, transaction)
 	}
 
-	fmt.Println(transactionsList)
+	sum, err := summary.GenerateSummary(transactionsList, config, time.Now())
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to generate summary")
+	}
+	sum.Display()
 }
