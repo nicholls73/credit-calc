@@ -35,7 +35,7 @@ func GenerateSummary(transactions []*transactions.Transaction, config *config.Co
 		}
 
 		if transaction.IsEligible(config) {
-			amountLeft += (-transaction.Amount)
+			amountLeft += transaction.Amount
 			totalAmountSpent += -transaction.Amount
 		}
 	}
